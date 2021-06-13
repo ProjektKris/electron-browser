@@ -1,11 +1,13 @@
 {
-  "name": "electron-browser",
+  "name": "moyai-browser",
   "version": "1.0.0",
   "description": "testing if electron can be used to make a browser",
   "main": "index.js",
   "scripts": {
     "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-win": "electron-packager . moyai-browser --overwrite --asar=true --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Electron Timer App\"",
+    "package-linux": "electron-packager . moyai-browser --overwrite --asar=true --platform=linux --arch=x64 --icon=assets/icons/png/1024x1024.png --prune=true --out=release-builds"
   },
   "author": "ProjektKris",
   "license": "MIT",
