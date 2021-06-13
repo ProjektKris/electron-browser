@@ -1,0 +1,16 @@
+{
+  "name": "electron-browser",
+  "version": "1.0.0",
+  "description": "testing if electron can be used to make a browser",
+  "main": "index.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ProjektKris",
+  "license": "MIT",
+  "dependencies": {
+    "electron": "^13.1.2",
+    "electron-packager": "^15.2.0"
+  }
+}

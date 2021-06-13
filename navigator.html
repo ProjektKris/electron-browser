@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Navigator</title>
+    </head>
+    <body>
+        <form id="form">
+            <input type="text" value="https://" id="input/url" autofocus>
+            <!-- <button type="submit"></button> -->
+        </form>
+        <p>if empty -> https://google.com</p>
+    </body>
+    <script>
+        const form = document.getElementById('form');
+        const urlinput = document.getElementById('input/url');
+
+        form.onsubmit = () => {
+            let input = urlinput.value;
+            // let data;
+            // if (input.trim() == '') {
+            //     data = 'https://www.google.com';
+            // } else {
+            //     data = input
+            // }
+            window.api.send('toMain', ['navigate', input]);
+        }
+    </script>
+</html>
