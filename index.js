@@ -9,19 +9,84 @@ const {
     nativeTheme
 } = electron;
 
+const titlebarHeight = 15;
+const bottomExtrasHeight = 56;
+const scrollbarWidth = 15;
+const startpageURL = 'https://www.google.com';
+
 let win;
 let view;
-let winSize;
-let width;
-let height;
 
-const topHeight = 59;
-const scrollbarWidth = 15;
+let winSize;
+
+let tabs = [];
+let currentTabId;
+
+function createTab(url) {
+    if (win != null) {
+        // determine if it should load the startpage url
+        let targetURL = url == null ? startpageURL : url;
+
+        // create a new tab
+        let newTab = new BrowserView()
+
+        // load url
+        newTab.webContents.loadURL(targetURL);
+
+        // index
+        tabs.push(newTab);
+        openTab(tabs.length-1);
+
+        // set bounds
+        newTab.webContents.once('dom-ready', () => {
+            win.webContents.send('fromMain', ['getHeight']);
+        });
+        
+        // update url box
+        newTab.webContents.on('did-finish-load', () => {
+            win.webContents.send("fromMain", ['urlbar:update', newTab.webContents.getURL()]);
+        })
+    }
+}
+
+function openTab(id) {
+    if (currentTabId != null) {
+        if (currentTabId != id) {
+            // hide prev tab
+            win.removeBrowserView(tabs[currentTabId]);
+
+            // update currentTabId
+            currentTabId = id;
+
+            // update browserview
+            win.setBrowserView(tabs[currentTabId]);
+        }
+    } else {
+        currentTabId = 0;
+        win.setBrowserView(tabs[currentTabId]);
+    }
+}
+
+function closeTab(id) {
+    if (tabs.length > 1) {
+        tabs.splice(id, 1);
+        if (currentTabId == id) {
+            if (currentTabId > 1) {
+                openTab(currentTabId - 1);
+            } else {
+                openTab(currentTabId + 1);
+            }
+        }
+        if (currentTabId > id) {
+            currentTabId += 1;
+        }
+    } else {
+        app.quit();
+    }
+}
 
 app.on('ready', () => {
     console.log('app ready');
-
-    // newWindow();
 
     // In the main process.
     win = new BrowserWindow({
@@ -36,39 +101,27 @@ app.on('ready', () => {
     })
     win.loadFile('index.html');
 
-    winSize = win.getSize();
-    width = winSize[0];
-    height = winSize[1];
-
-    view = new BrowserView()
-    win.setBrowserView(view)
-    view.setBounds({
-        x: 0,
-        y: topHeight,
-        width: width - scrollbarWidth,
-        height: height - topHeight - 55
-    })
-    view.webContents.loadURL('https://electronjs.org')
+    createTab();
 
     // set dark theme
-    nativeTheme.themeSource = 'dark'
+    nativeTheme.themeSource = 'dark';
 
+    // update BrowserView size
     win.on('resize', () => {
-        winSize = win.getSize();
-        let width = winSize[0];
-        let height = winSize[1];
+        win.webContents.send('fromMain', ['getHeight']);
+        // winSize = win.getSize();
+        // let width = winSize[0];
+        // let height = winSize[1];
 
-        view.setBounds({
-            x: 0,
-            y: topHeight,
-            width: width - scrollbarWidth,
-            height: height - topHeight - 55
-        })
+        // view.setBounds({
+        //     x: 0,
+        //     y: topHeight,
+        //     width: width - scrollbarWidth,
+        //     height: height - topHeight - 55
+        // })
     })
 
-    view.webContents.on('did-finish-load', () => {
-        win.webContents.send("fromMain", ['urlbar:update', view.webContents.getURL()]);
-    })
+
 
     // build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
@@ -86,17 +139,29 @@ ipcMain.on('toMain', (_, data) => {
             newWindow(data[1]);
             break;
         case "goback":
-            view.webContents.goBack();
+            tabs[currentTabId].webContents.goBack();
             break;
         case 'goforward':
-            view.webContents.goForward();
+            tabs[currentTabId].webContents.goForward();
             break;
         case 'reload':
-            view.webContents.reload();
+            tabs[currentTabId].webContents.reload();
             break;
         case 'url':
             console.log(`navigate to url: ${data[1]}`)
-            view.webContents.loadURL(data[1]);
+            tabs[currentTabId].webContents.loadURL(data[1]);
+            break;
+        case 'height':
+            winSize = win.getSize();
+            let width = winSize[0];
+            let height = winSize[1];
+
+            tabs[currentTabId].setBounds({
+                x: 0,
+                y: titlebarHeight + data[1],
+                width: width - scrollbarWidth,
+                height: height - titlebarHeight - bottomExtrasHeight - data[1]
+            })
             break;
         default:
             console.log(`unknown data from window: "${data}"`);
@@ -161,7 +226,7 @@ const mainMenuTemplate = [
                 label: 'Toggle DevTools',
                 accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
                 click(item, focusedWindow) {
-                    view.webContents.toggleDevTools();
+                    tabs[currentTabId].webContents.toggleDevTools();
                     // focusedWindow.toggleDevTools();
                 }
             }

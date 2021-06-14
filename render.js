@@ -1,3 +1,4 @@
+const body = document.querySelector('body');
 const goback = document.getElementById('goback');
 const goforward = document.getElementById('goforward');
 const reload = document.getElementById('reload');
@@ -23,6 +24,9 @@ window.api.receive("fromMain", (data) => {
     switch (data[0]) {
         case 'urlbar:update':
             urlbox.value = data[1];
+            break;
+        case 'getHeight':
+            window.api.send('toMain', ['height', body.clientHeight]);
             break;
     };
 });
