@@ -84,7 +84,12 @@ function openTab(id) {
 function closeTab(id) {
     console.log(`closing tab: ${id}`)
     if (tabs.length > 1) {
-        tabs.splice(id, 1);
+        let removedTabArr = tabs.splice(id, 1);
+        removedTabArr[0].webContents.removeAllListeners();
+        removedTabArr[0].webContents.delete();
+        removedTabArr[0].webContents.forcefullyCrashRenderer();
+        removedTabArr = null;
+
         win.webContents.send('fromMain', ['remove-tab', id])
         if (currentTabId == id) {
             openTab(tabs.length-1);
