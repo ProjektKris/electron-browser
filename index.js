@@ -3,36 +3,24 @@ const path = require('path');
 const {
     app,
     BrowserWindow,
+    BrowserView,
     Menu,
     ipcMain
 } = electron;
 
-// let windows = [];
-let navigatorWindow;
+let win;
+let view;
+let winSize;
+let width;
+let height;
 
-function openNav() {
-    if (navigatorWindow == null) {
-        // create new window
-        navigatorWindow = new BrowserWindow({
-            width: 250,
-            height: 200,
-            webPreferences: {
-                nodeIntegration: false,
-                contextIsolation: true,
-                preload: path.join(__dirname, 'preload.js')
-            }
-        });
-        navigatorWindow.loadFile('navigator.html');
+app.on('ready', () => {
+    console.log('app ready');
 
-        navigatorWindow.on("close", () => {
-            navigatorWindow = null
-        })
-    }
-}
+    // newWindow();
 
-function newWindow(url) {
-    // create new window
-    let window = new BrowserWindow({
+    // In the main process.
+    win = new BrowserWindow({
         width: 800,
         height: 600,
         webPreferences: {
@@ -40,42 +28,42 @@ function newWindow(url) {
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
         }
-    });
-    window.loadURL(url != '' && url != null && url != 'https://' ? url : 'https://www.google.com');
-    // let newPromise = new Promise((resolve, reject) => {
-    //     windows[windows.length] = new BrowserWindow({
-    //         width: 800,
-    //         height: 600,
-    //         webPreferences: {
-    //             nodeIntegration: false,
-    //             contextIsolation: true,
-    //             preload: path.join(__dirname, 'preload.js')
-    //         }
-    //     });
-    //     resolve();
-    //     reject();
-    // })
+    })
+    win.loadFile('index.html');
 
-    // newPromise.then(
-    //     () => {
-    //         console.log(url);
-    //         if (url == '' || url == null) {
-    //             console.log(windows[windows.length])
-    //             windows[windows.length].loadURL('https://www.google.com');
-    //         } else {
-    //             windows[windows.length].loadURL(url);
-    //         }
-    //     },
-    //     (err) => {
-    //         console.log(err);
-    //     }
-    // )
-}
+    winSize = win.getSize();
+    width = winSize[0];
+    height = winSize[1];
 
-app.on('ready', () => {
-    console.log('app ready');
+    view = new BrowserView()
+    win.setBrowserView(view)
+    view.setBounds({
+        x: 0,
+        y: 39,
+        width: width - 15,
+        height: height - 39 - 55
+    })
+    view.setBounds({ x: 0, y: 39, width: 780, height: 500 })
+    view.webContents.loadURL('https://electronjs.org')
 
-    newWindow();
+    win.on('resize', () => {
+        winSize = win.getSize();
+        let width = winSize[0];
+        let height = winSize[1];
+
+        console.log(`size: ${win.getSize()}`)
+
+        view.setBounds({
+            x: 0,
+            y: 39,
+            width: width - 15,
+            height: height - 39 - 55
+        })
+    })
+
+    view.webContents.on('did-finish-load', () => {
+        win.webContents.send("fromMain", ['urlbar:update', view.webContents.getURL()]);
+    })
 
     // build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
@@ -92,8 +80,18 @@ ipcMain.on('toMain', (_, data) => {
             navigatorWindow.close();
             newWindow(data[1]);
             break;
+        case "goback":
+            view.webContents.goBack();
+            break;
+        case 'goforward':
+            view.webContents.goForward();
+            break;
+        case 'url':
+            console.log(`navigate to url: ${data[1]}`)
+            view.webContents.loadURL(data[1]);
+            break;
         default:
-            console.log("unknown data from window")
+            console.log(`unknown data from window: "${data}"`);
     };
 })
 
@@ -113,29 +111,29 @@ const mainMenuTemplate = [
     {
         label: 'Edit',
         submenu: [
-          { role: 'undo' },
-          { role: 'redo' },
-          { type: 'separator' },
-          { role: 'cut' },
-          { role: 'copy' },
-          { role: 'paste' }
+            { role: 'undo' },
+            { role: 'redo' },
+            { type: 'separator' },
+            { role: 'cut' },
+            { role: 'copy' },
+            { role: 'paste' }
         ]
-      },
-      // { role: 'viewMenu' }
-      {
+    },
+    // { role: 'viewMenu' }
+    {
         label: 'View',
         submenu: [
-          { role: 'reload' },
-          { role: 'forceReload' },
-          { role: 'toggleDevTools' },
-          { type: 'separator' },
-          { role: 'resetZoom' },
-          { role: 'zoomIn' },
-          { role: 'zoomOut' },
-          { type: 'separator' },
-          { role: 'togglefullscreen' }
+            { role: 'reload' },
+            { role: 'forceReload' },
+            { role: 'toggleDevTools' },
+            { type: 'separator' },
+            { role: 'resetZoom' },
+            { role: 'zoomIn' },
+            { role: 'zoomOut' },
+            { type: 'separator' },
+            { role: 'togglefullscreen' }
         ]
-      },
+    },
     {
         label: 'Tabs',
         submenu: [

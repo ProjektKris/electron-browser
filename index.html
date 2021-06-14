@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <body>
+        <button id="goback">◀</button>
+        <button id="goforward">▶</button>
+        <button id="reload">🔄</button>
+        <form id="urlform" style="margin: 0; padding: 0; display:inline;">
+            <input id="urlbox" type="text" value="https://www.google.com" style="width: 80%">
+        </form>
+    </body>
+    <script>
+        const goback = document.getElementById('goback');
+        const goforward = document.getElementById('goforward');
+        const reload = document.getElementById('reload');
+        const urlform = document.getElementById('urlform');
+        const urlbox = document.getElementById('urlbox');
+
+        goback.onclick = () => {
+            window.api.send('toMain', ['goback']);
+        }
+        goforward.onclick = () => {
+            window.api.send('toMain', ['goforward']);
+        }
+        urlform.onsubmit = () => {
+            let val = urlbox.value
+            window.api.send('toMain', ['url', val]);
+        }
+
+        window.api.receive("fromMain", (data) => {
+            console.log(`Received ${data} from main process`);
+            switch(data[0]) {
+                case 'urlbar:update':
+                    urlbox.value = data[1];
+                    break;
+            };
+        });
+    </script>
+</html>
