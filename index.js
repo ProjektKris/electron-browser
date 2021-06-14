@@ -57,19 +57,17 @@ function createTab(url) {
 
 function openTab(id) {
     if (currentTabId != null) {
-        if (currentTabId != id) {
-            // hide prev tab
-            win.removeBrowserView(tabs[currentTabId]);
+        // hide prev tab
+        win.removeBrowserView(tabs[currentTabId]);
 
-            // update currentTabId
-            currentTabId = id;
+        // update currentTabId
+        currentTabId = id;
 
-            // update browserview
-            win.setBrowserView(tabs[currentTabId]);
+        // update browserview
+        win.setBrowserView(tabs[currentTabId]);
 
-            // highlight the tab button
-            win.webContents.send('fromMain', ['highlight-tab', id])
-        }
+        // highlight the tab button
+        win.webContents.send('fromMain', ['highlight-tab', id])
     } else {
         currentTabId = 0;
         win.setBrowserView(tabs[currentTabId]);
@@ -79,19 +77,17 @@ function openTab(id) {
     }
 
     // update urlbox everytime we switch tabs
+    console.log(`current tab id: ${currentTabId}\ntabs: ${tabs}\ncurrent tab: ${tabs[currentTabId]}`)
     win.webContents.send("fromMain", ['urlbar:update', tabs[currentTabId].webContents.getURL()]);
 }
 
 function closeTab(id) {
+    console.log(`closing tab: ${id}`)
     if (tabs.length > 1) {
         tabs.splice(id, 1);
         win.webContents.send('fromMain', ['remove-tab', id])
         if (currentTabId == id) {
-            if (currentTabId > 0) {
-                openTab(currentTabId - 1);
-            } else {
-                openTab(currentTabId + 1);
-            }
+            openTab(tabs.length-1);
         }
         if (currentTabId > id) {
             currentTabId -= 1;
@@ -181,10 +177,10 @@ ipcMain.on('toMain', (_, data) => {
             createTab();
             break;
         case 'closetab':
-            closeTab(data[1]);
+            closeTab(parseInt(data[1], 10));
             break;
         case 'opentab':
-            openTab(data[1]);
+            openTab(parseInt(data[1], 10));
             break;
         case 'renderjs-ready':
             createTab();
