@@ -55,6 +55,7 @@ window.api.receive("fromMain", (data) => {
             newTabDiv.className = 'tab';
             newTabDiv.id = `tab${data[1].toString()}`
             newTabBtn.innerHTML = `tab ${data[1].toString()}`;
+            newTabBtn.id = `tabBtn${data[1].toString()}`
             newCloseBtn.innerHTML = 'x';
 
             newTabBtn.onclick = () => {
@@ -86,11 +87,14 @@ window.api.receive("fromMain", (data) => {
                 let elementId = tabElement.id;
                 let res = elementId.split('tab');
                 let tabId = res[1];
+                let tabBtn = document.getElementById(`tabBtn${tabId}`)
                 if (tabId == removedTabId) {
                     tabElement.remove();
                 } else {
                     if (tabId > removedTabId) {
-                        tabElement.id = `tab${tabId-1}`;
+                        tabElement.id = `tab${tabId - 1}`;
+                        tabBtn.id = `tabBtn${tabId - 1}`;
+                        tabBtn.innerHTML = `tab ${tabId-1}`
                     }
                 }
             }
