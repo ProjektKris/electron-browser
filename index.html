@@ -1,12 +1,24 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <link rel="stylesheet" href="index.css">
+    </head>
     <body style="background-color: #2a2a2a">
-        <button id="goback" style="background-color: #3c3c3c; color: white;">◀</button>
-        <button id="goforward" style="background-color: #3c3c3c; color: white;">▶</button>
-        <button id="reload" style="background-color: #3c3c3c; color: white;">↩</button>
-        <form id="urlform" style="margin: 0; padding: 0; display:inline;">
-            <input id="urlbox" type="text" value="https://www.google.com" style="width: 80%; background-color: #3c3c3c; color: whitesmoke;">
-        </form>
+        <div id="navigator" class="flex-container">
+            <div id="tabbar" class="flex-container">
+                <button style="flex:10%" class="button">tab1</button>
+                <button style="flex:10%" class="button">tab2</button>
+                <button style="flex:10%" class="button">tab3</button>
+            </div>
+            <div id="urlbar">
+                <button id="goback" class="button">◀</button>
+                <button id="goforward" class="button">▶</button>
+                <button id="reload" class="button">↩</button>
+                <form id="urlform">
+                    <input id="urlbox" type="text" value="https://www.google.com" style="width: 80%; background-color: #3c3c3c; color: whitesmoke;">
+                </form>
+            </div>
+        </div>
     </body>
     <script>
         const goback = document.getElementById('goback');
