@@ -56,8 +56,6 @@ app.on('ready', () => {
         let width = winSize[0];
         let height = winSize[1];
 
-        console.log(`size: ${win.getSize()}`)
-
         view.setBounds({
             x: 0,
             y: 39,
