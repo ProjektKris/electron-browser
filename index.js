@@ -24,6 +24,7 @@ let currentTabId;
 
 function createTab(url) {
     if (win != null) {
+        console.log('creating tab')
         // determine if it should load the startpage url
         let targetURL = url == null ? startpageURL : url;
 
@@ -35,13 +36,18 @@ function createTab(url) {
 
         // index
         tabs.push(newTab);
-        openTab(tabs.length-1);
+
+        // render tab button
+        win.webContents.send('fromMain', ['create-tab', tabs.length - 1]);
+
+        // open the new tab
+        openTab(tabs.length - 1);
 
         // set bounds
         newTab.webContents.once('dom-ready', () => {
             win.webContents.send('fromMain', ['getHeight']);
         });
-        
+
         // update url box
         newTab.webContents.on('did-finish-load', () => {
             win.webContents.send("fromMain", ['urlbar:update', newTab.webContents.getURL()]);
@@ -60,25 +66,35 @@ function openTab(id) {
 
             // update browserview
             win.setBrowserView(tabs[currentTabId]);
+
+            // highlight the tab button
+            win.webContents.send('fromMain', ['highlight-tab', id])
         }
     } else {
         currentTabId = 0;
         win.setBrowserView(tabs[currentTabId]);
+
+        // highlight the tab button
+        win.webContents.send('fromMain', ['highlight-tab', currentTabId])
     }
+
+    // update urlbox everytime we switch tabs
+    win.webContents.send("fromMain", ['urlbar:update', tabs[currentTabId].webContents.getURL()]);
 }
 
 function closeTab(id) {
     if (tabs.length > 1) {
         tabs.splice(id, 1);
+        win.webContents.send('fromMain', ['remove-tab', id])
         if (currentTabId == id) {
-            if (currentTabId > 1) {
+            if (currentTabId > 0) {
                 openTab(currentTabId - 1);
             } else {
                 openTab(currentTabId + 1);
             }
         }
         if (currentTabId > id) {
-            currentTabId += 1;
+            currentTabId -= 1;
         }
     } else {
         app.quit();
@@ -100,8 +116,6 @@ app.on('ready', () => {
         backgroundColor: "#2a2a2a"
     })
     win.loadFile('index.html');
-
-    createTab();
 
     // set dark theme
     nativeTheme.themeSource = 'dark';
@@ -162,6 +176,18 @@ ipcMain.on('toMain', (_, data) => {
                 width: width - scrollbarWidth,
                 height: height - titlebarHeight - bottomExtrasHeight - data[1]
             })
+            break;
+        case 'newtab':
+            createTab();
+            break;
+        case 'closetab':
+            closeTab(data[1]);
+            break;
+        case 'opentab':
+            openTab(data[1]);
+            break;
+        case 'renderjs-ready':
+            createTab();
             break;
         default:
             console.log(`unknown data from window: "${data}"`);

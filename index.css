@@ -18,7 +18,8 @@ form {
 }
 
 button {
-    background-color: #3c3c3c;
+    background-color: transparent;
+    /* background-color: #3c3c3c; */
     color: white;
 }
 
@@ -35,4 +36,10 @@ p {
 .tab {
     margin-right: 1px;
     margin-left: 1px;
+}
+
+.selected-tab {
+    margin-right: 1px;
+    margin-left: 1px;
+    background-color: #666666 !important;
 }
