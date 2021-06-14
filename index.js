@@ -15,6 +15,9 @@ let winSize;
 let width;
 let height;
 
+const topHeight = 59;
+const scrollbarWidth = 15;
+
 app.on('ready', () => {
     console.log('app ready');
 
@@ -41,11 +44,10 @@ app.on('ready', () => {
     win.setBrowserView(view)
     view.setBounds({
         x: 0,
-        y: 39,
-        width: width - 15,
-        height: height - 39 - 55
+        y: topHeight,
+        width: width - scrollbarWidth,
+        height: height - topHeight - 55
     })
-    view.setBounds({ x: 0, y: 39, width: 780, height: 500 })
     view.webContents.loadURL('https://electronjs.org')
 
     // set dark theme
@@ -58,9 +60,9 @@ app.on('ready', () => {
 
         view.setBounds({
             x: 0,
-            y: 39,
-            width: width - 15,
-            height: height - 39 - 55
+            y: topHeight,
+            width: width - scrollbarWidth,
+            height: height - topHeight - 55
         })
     })
 
