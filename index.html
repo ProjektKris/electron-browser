@@ -6,9 +6,13 @@
     <body style="background-color: #2a2a2a">
         <div id="navigator" class="flex-container">
             <div id="tabbar" class="flex-container">
-                <button style="flex:10%" class="button">tab1</button>
-                <button style="flex:10%" class="button">tab2</button>
-                <button style="flex:10%" class="button">tab3</button>
+                <div id="tabs" class="flex-container">
+                    <button class="tab">
+                        <p>tab1</p>
+                        <button>x</button>
+                    </button>
+                </div>
+                <button id="btn-newtab" class="button">+</button>
             </div>
             <div id="urlbar">
                 <button id="goback" class="button">◀</button>
