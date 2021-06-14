@@ -144,10 +144,10 @@ app.on('window-all-closed', () => {
 
 ipcMain.on('toMain', (_, data) => {
     switch (data[0]) {
-        case "navigate":
-            navigatorWindow.close();
-            newWindow(data[1]);
-            break;
+        // case "navigate":
+        //     navigatorWindow.close();
+        //     newWindow(data[1]);
+        //     break;
         case "goback":
             tabs[currentTabId].webContents.goBack();
             break;
@@ -229,18 +229,18 @@ const mainMenuTemplate = [
             { role: 'togglefullscreen' }
         ]
     },
-    {
-        label: 'Tabs',
-        submenu: [
-            {
-                label: 'New',
-                accelerator: process.platform == 'darwin' ? 'Command+T' : 'Ctrl+T',
-                click() {
-                    openNav();
-                }
-            }
-        ]
-    },
+    // {
+    //     label: 'Tabs',
+    //     submenu: [
+    //         {
+    //             label: 'New',
+    //             accelerator: process.platform == 'darwin' ? 'Command+T' : 'Ctrl+T',
+    //             click() {
+    //                 openNav();
+    //             }
+    //         }
+    //     ]
+    // },
     {
         label: 'Developer Tools',
         submenu: [
