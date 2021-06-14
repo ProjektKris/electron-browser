@@ -5,7 +5,8 @@ const {
     BrowserWindow,
     BrowserView,
     Menu,
-    ipcMain
+    ipcMain,
+    nativeTheme
 } = electron;
 
 let win;
@@ -27,7 +28,8 @@ app.on('ready', () => {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js')
-        }
+        },
+        backgroundColor: "#2a2a2a"
     })
     win.loadFile('index.html');
 
@@ -45,6 +47,9 @@ app.on('ready', () => {
     })
     view.setBounds({ x: 0, y: 39, width: 780, height: 500 })
     view.webContents.loadURL('https://electronjs.org')
+
+    // set dark theme
+    nativeTheme.themeSource = 'dark'
 
     win.on('resize', () => {
         winSize = win.getSize();
@@ -85,6 +90,9 @@ ipcMain.on('toMain', (_, data) => {
             break;
         case 'goforward':
             view.webContents.goForward();
+            break;
+        case 'reload':
+            view.webContents.reload();
             break;
         case 'url':
             console.log(`navigate to url: ${data[1]}`)
@@ -153,7 +161,8 @@ const mainMenuTemplate = [
                 label: 'Toggle DevTools',
                 accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
                 click(item, focusedWindow) {
-                    focusedWindow.toggleDevTools();
+                    view.webContents.toggleDevTools();
+                    // focusedWindow.toggleDevTools();
                 }
             }
         ]

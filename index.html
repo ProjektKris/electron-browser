@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
-    <body>
-        <button id="goback">◀</button>
-        <button id="goforward">▶</button>
-        <button id="reload">🔄</button>
+    <body style="background-color: #2a2a2a">
+        <button id="goback" style="background-color: #3c3c3c; color: white;">◀</button>
+        <button id="goforward" style="background-color: #3c3c3c; color: white;">▶</button>
+        <button id="reload" style="background-color: #3c3c3c; color: white;">↩</button>
         <form id="urlform" style="margin: 0; padding: 0; display:inline;">
-            <input id="urlbox" type="text" value="https://www.google.com" style="width: 80%">
+            <input id="urlbox" type="text" value="https://www.google.com" style="width: 80%; background-color: #3c3c3c; color: whitesmoke;">
         </form>
     </body>
     <script>
@@ -20,6 +20,9 @@
         }
         goforward.onclick = () => {
             window.api.send('toMain', ['goforward']);
+        }
+        reload.onclick = () => {
+            window.api.send('toMain', ['reload']);
         }
         urlform.onsubmit = () => {
             let val = urlbox.value
