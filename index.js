@@ -41,6 +41,12 @@ function createTab(url) {
         // render tab button
         win.webContents.send('fromMain', ['create-tab', tabs.length - 1]);
 
+        // open link in new tab (instead of new window)
+        newTab.webContents.setWindowOpenHandler(({ url }) => {
+            createTab(url);
+            return { action: 'deny' }
+        })
+
         // open the new tab
         openTab(tabs.length - 1);
 
