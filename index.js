@@ -174,7 +174,13 @@ app.on('ready', () => {
         // })
     })
 
-
+    win.on('close', () => {
+        console.log('clearing session data');
+        win.webContents.session.clearStorageData([], (data) => {
+            console.log(data);
+        });
+        console.log('done!');
+    })
 
     // build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
