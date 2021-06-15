@@ -27,6 +27,7 @@ function createTab(url) {
         console.log('creating tab')
         // determine if it should load the startpage url
         let targetURL = url == null ? startpageURL : url;
+        let tabId = tabs.length;
 
         // create a new tab
         let newTab = new BrowserView()
@@ -52,6 +53,17 @@ function createTab(url) {
         newTab.webContents.on('did-finish-load', () => {
             win.webContents.send("fromMain", ['urlbar:update', newTab.webContents.getURL()]);
         })
+
+        // update tab title
+        newTab.webContents.on('page-title-updated', (_, title) => {
+            if (win.getBrowserView() == newTab) {
+                // update tab title
+                win.webContents.send('fromMain', ['update-tab-title', tabId, title]);
+
+                // update window title
+                win.title = tabs[currentTabId].webContents.getTitle();
+            }
+        })
     }
 }
 
@@ -68,6 +80,9 @@ function openTab(id) {
 
         // highlight the tab button
         win.webContents.send('fromMain', ['highlight-tab', id])
+
+        // readjust webcontent bounds
+        win.webContents.send('fromMain', ['getHeight']);
     } else {
         currentTabId = 0;
         win.setBrowserView(tabs[currentTabId]);
@@ -79,24 +94,31 @@ function openTab(id) {
     // update urlbox everytime we switch tabs
     console.log(`current tab id: ${currentTabId}\ntabs: ${tabs}\ncurrent tab: ${tabs[currentTabId]}`)
     win.webContents.send("fromMain", ['urlbar:update', tabs[currentTabId].webContents.getURL()]);
+
+    // update tab title
+    win.webContents.send('fromMain', ['update-tab-title', currentTabId, tabs[currentTabId].webContents.getTitle()]);
+
+    // update window title
+    win.title = tabs[currentTabId].webContents.getTitle();
+
 }
 
 function closeTab(id) {
     console.log(`closing tab: ${id}`)
     if (tabs.length > 1) {
         let removedTabArr = tabs.splice(id, 1);
-        removedTabArr[0].webContents.removeAllListeners();
-        removedTabArr[0].webContents.delete();
-        removedTabArr[0].webContents.forcefullyCrashRenderer();
-        removedTabArr = null;
 
         win.webContents.send('fromMain', ['remove-tab', id])
         if (currentTabId == id) {
-            openTab(tabs.length-1);
+            openTab(tabs.length - 1);
         }
         if (currentTabId > id) {
             currentTabId -= 1;
         }
+        removedTabArr[0].webContents.removeAllListeners();
+        removedTabArr[0].webContents.delete();
+        removedTabArr[0].webContents.forcefullyCrashRenderer();
+        removedTabArr = null;
     } else {
         app.quit();
     }
@@ -188,6 +210,7 @@ ipcMain.on('toMain', (_, data) => {
             openTab(parseInt(data[1], 10));
             break;
         case 'renderjs-ready':
+            console.log('renderjs ready');
             createTab();
             break;
         default:
@@ -255,6 +278,14 @@ const mainMenuTemplate = [
                 click(item, focusedWindow) {
                     tabs[currentTabId].webContents.toggleDevTools();
                     // focusedWindow.toggleDevTools();
+                }
+            },
+            {
+                label: 'Browser UI DevTools',
+                // accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+                click(item, focusedWindow) {
+                    // tabs[currentTabId].webContents.toggleDevTools();
+                    focusedWindow.toggleDevTools();
                 }
             }
         ]

@@ -94,10 +94,17 @@ window.api.receive("fromMain", (data) => {
                     if (tabId > removedTabId) {
                         tabElement.id = `tab${tabId - 1}`;
                         tabBtn.id = `tabBtn${tabId - 1}`;
-                        tabBtn.innerHTML = `tab ${tabId-1}`
+                        // tabBtn.innerHTML = `tab ${tabId-1}`
                     }
                 }
             }
+            break;
+        case 'update-tab-title':
+            let tabId = data[1];
+            let title = data[2];
+            let tabBtnToRetitle = document.getElementById(`tabBtn${tabId}`);
+
+            tabBtnToRetitle.innerHTML = title;
             break;
     };
 });
