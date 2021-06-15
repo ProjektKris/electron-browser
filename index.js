@@ -6,13 +6,18 @@ const {
     BrowserView,
     Menu,
     ipcMain,
-    nativeTheme
+    nativeTheme,
+    session
 } = electron;
 
 const titlebarHeight = 15;
 const bottomExtrasHeight = 56;
 const scrollbarWidth = 15;
 const startpageURL = 'https://www.google.com';
+
+const filter = {
+    urls: ["http://*/*", "https://*/*"]
+}
 
 let win;
 let view;
@@ -132,6 +137,11 @@ function closeTab(id) {
 
 app.on('ready', () => {
     console.log('app ready');
+
+    session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
+        details.requestHeaders['DNT'] = "1";
+        callback({ cancel: false, requestHeaders: details.requestHeaders })
+    })
 
     // In the main process.
     win = new BrowserWindow({
