@@ -64,6 +64,14 @@ window.api.receive("fromMain", (data) => {
                 let tabId = res[1];
                 window.api.send('toMain', ['opentab', tabId])
             }
+            newTabDiv.onauxclick = (e) => {
+                let elementId = newTabDiv.id;
+                let res = elementId.split('tab');
+                let tabId = res[1];
+                if (e.button == 1) { // middle mouse button close tab
+                    window.api.send('toMain', ['closetab', tabId])
+                }
+            }
             newCloseBtn.onclick = () => {
                 let elementId = newTabDiv.id;
                 let res = elementId.split('tab');
