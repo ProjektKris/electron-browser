@@ -277,18 +277,49 @@ const mainMenuTemplate = [
             { role: 'togglefullscreen' }
         ]
     },
-    // {
-    //     label: 'Tabs',
-    //     submenu: [
-    //         {
-    //             label: 'New',
-    //             accelerator: process.platform == 'darwin' ? 'Command+T' : 'Ctrl+T',
-    //             click() {
-    //                 openNav();
-    //             }
-    //         }
-    //     ]
-    // },
+    {
+        label: 'Tabs',
+        submenu: [
+            {
+                label: 'New',
+                accelerator: process.platform == 'darwin' ? 'Command+T' : 'Ctrl+T',
+                click() {
+                    createTab();
+                }
+            },
+            {
+                label: 'Close Tab',
+                accelerator: process.platform == 'darwin' ? 'Command+W' : 'Ctrl+W',
+                click() {
+                    closeTab(currentTabId);
+                }
+            },
+            {
+                label: 'Previous Tab',
+                accelerator: 'CommandOrControl+Shift+Tab',
+                click() {
+                    let tabIdToOpen = 0
+                    if (currentTabId > 0) {
+                        tabIdToOpen = currentTabId - 1;
+                    } else {
+                        tabIdToOpen = tabs.length - 1;
+                    }
+                    openTab(tabIdToOpen);
+                }
+            },
+            {
+                label: 'Next Tab',
+                accelerator: 'CommandOrControl+Tab',
+                click() {
+                    let tabIdToOpen = 0
+                    if (currentTabId < tabs.length - 1) {
+                        tabIdToOpen = currentTabId + 1;
+                    }
+                    openTab(tabIdToOpen);
+                }
+            }
+        ]
+    },
     {
         label: 'Developer Tools',
         submenu: [
