@@ -81,7 +81,7 @@ function createTab(url) {
 function openTab(id) {
     if (currentTabId != null) {
         // hide prev tab
-        win.removeBrowserView(tabs[currentTabId]);
+        // win.removeBrowserView(tabs[currentTabId]);
 
         // update currentTabId
         currentTabId = id;
