@@ -1,6 +1,7 @@
 const electron = require("electron");
 const path = require("path");
 const Tab = require("./modules/tab");
+const findEmpty = require("./modules/findEmpty");
 const { app, BrowserWindow, BrowserView, Menu, ipcMain, nativeTheme, session } =
     electron;
 
@@ -21,21 +22,12 @@ let winSize;
 let tabs = [];
 let currentTabId;
 
-function addToEmpty(item, arr) {
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] == null) {
-            arr[i] = item;
-            return;
-        }
-    }
-    arr[arr.length] = item;
-}
-
 function createTab(url) {
     if (win != null) {
         // determine if it should load the startpage url
         let targetURL = url == null ? startpageURL : url;
-        let tabId = tabs.length;
+        let tabId = findEmpty(tabs);
+        // let tabId = tabs.length;
 
         // create a new tab
         tabs[tabId] = new Tab(targetURL, tabId, win, createTab, () => {
@@ -62,7 +54,7 @@ function closeTab(id) {
         }
         if (currentTabId > id) {
             for (let i = 1; i < tabs.length - id; i++) {
-                tabs[i+id].Id -= 1;
+                tabs[i + id].Id -= 1;
             }
             currentTabId -= 1;
         }
