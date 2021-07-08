@@ -66,8 +66,8 @@ function Tab(url, id, win, onNewTab, onClose) {
     this.Win.webContents.send("fromMain", ["create-tab", this.Id]);
 
     // open link in new tab instead of new window
-    this.BrowserView.webContents.setWindowOpenHandler(({ newUrl }) => {
-        onNewTab(newUrl);
+    this.BrowserView.webContents.setWindowOpenHandler(({ url }) => {
+        onNewTab(url);
         return { action: "deny" };
     });
 
