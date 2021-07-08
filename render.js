@@ -9,6 +9,9 @@ const newTab = document.getElementById('btn-newtab');
 
 let highlightedTabElement;
 
+// make the tabs container a drag container
+// makeDragContainer(tabsContainer);
+
 goback.onclick = () => {
     window.api.send('toMain', ['goback']);
 };
@@ -57,6 +60,10 @@ window.api.receive("fromMain", (data) => {
             newTabBtn.innerHTML = `tab ${data[1].toString()}`;
             newTabBtn.id = `tabBtn${data[1].toString()}`;
             newCloseBtn.innerHTML = 'x';
+
+            // dragging
+            makeDraggable(newTabDiv);
+            listenForTabDrag(newTabDiv);
 
             newTabBtn.onclick = () => {
                 let elementId = newTabDiv.id;
@@ -115,7 +122,99 @@ window.api.receive("fromMain", (data) => {
 
             tabBtnToRetitle.innerHTML = title;
             break;
+        case 'prevTab':
+            const tabDivs = document.querySelectorAll(".tab");
+            let currentTabIndex = 0;
+
+            // find currentTabIndex
+            for (let i = 0; i < tabDivs.length; i++) {
+                let tabElement = tabDivs[i];
+                if (tabElement.classList.contains("selected-tab")) {
+                    currentTabIndex = i;
+                    break;
+                }
+            }
+
+            let prevTabIndex = currentTabIndex > 0 ? currentTabIndex - 1 : tabDivs.length - 1;
+            console.log(prevTabIndex);
+            let prevTabId = tabDivs[prevTabIndex].id;
+
+            window.api.send('toMain', ["prevTab", prevTabId.slice(3)]);
+            break;
+        case 'nextTab':
+            const tabDivs1 = document.querySelectorAll(".tab");
+            let currentTabIndex1 = 0;
+
+            // find currentTabIndex1
+            for (let i = 0; i < tabDivs1.length; i++) {
+                tabElement = tabDivs1[i];
+                if (tabElement.classList.contains("selected-tab")) {
+                    currentTabIndex1 = i;
+                    break;
+                }
+            }
+
+            let nextTabIndex = currentTabIndex1 < tabDivs1.length - 1 ? currentTabIndex1 + 1 : 0;
+            console.log(nextTabIndex);
+            let nextTabId = tabDivs1[nextTabIndex].id;
+
+            window.api.send('toMain', ["prevTab", nextTabId.slice(3)]);
+            break;
     };
 });
+
+function makeDraggable(element) {
+    element.draggable = true;
+    element.addEventListener('dragstart', () => {
+        element.classList.add('dragging');
+    });
+    element.addEventListener('dragend', () => {
+        element.classList.remove('dragging');
+    });
+}
+
+function listenForTabDrag(element) {
+    element.addEventListener("dragover", e => {
+        const draggingElements = [...tabsContainer.querySelectorAll(".dragging")];
+        const draggingElement = draggingElements[0];
+        // console.log(e, element);
+        tabsContainer.insertBefore(draggingElement, element);
+        // if (element != draggingElement) {
+        // }
+    });
+}
+
+
+// function makeDragContainer(container) {
+//     container.addEventListener('dragover', e => {
+//         e.preventDefault();
+//         var x = e.clientX, y = e.clientY,
+//             elementMouseIsOver = document.elementFromPoint(x, y);
+
+//         console.log(elementMouseIsOver);
+//         // const afterElement = getDragAfterElement(container, e.clientX);
+//         // const dragable = document.querySelector(".dragging");
+//         // if (afterElement == null) {
+//         //     container.appendChild(dragable);
+//         // } else {
+//         //     container.insertBefore(dragable, afterElement);
+//         // }
+//     });
+// }
+
+function getDragAfterElement(container, x) {
+    const draggableElements = [...container.querySelectorAll(".tab")];//('.tab:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        console.log(closest);
+        const box = child.getBoundingClientRect();
+        const offset = x - box.left - box.right / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
 
 window.api.send('toMain', ['renderjs-ready']);

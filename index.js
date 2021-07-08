@@ -174,6 +174,9 @@ ipcMain.on("toMain", (_, data) => {
         case "opentab":
             openTab(parseInt(data[1], 10));
             break;
+        case "prevTab":
+            openTab(parseInt(data[1], 10));
+            break;
         case "renderjs-ready":
             console.log("renderjs ready");
             createTab();
@@ -246,24 +249,18 @@ const mainMenuTemplate = [
                 label: "Previous Tab",
                 accelerator: "CommandOrControl+Shift+Tab",
                 click() {
-                    let tabIdToOpen = 0;
-                    if (currentTabId > 0) {
-                        tabIdToOpen = currentTabId - 1;
-                    } else {
-                        tabIdToOpen = tabs.length - 1;
-                    }
-                    openTab(tabIdToOpen);
+                    win.webContents.send("fromMain", ["prevTab"]);
+                    // let prev = FindPrev(tabs, currentTabId);
+                    // openTab(prev != null ? prev : FindPrev(tabs, tabs.length + 1));
                 },
             },
             {
                 label: "Next Tab",
                 accelerator: "CommandOrControl+Tab",
                 click() {
-                    let tabIdToOpen = 0;
-                    if (currentTabId < tabs.length - 1) {
-                        tabIdToOpen = currentTabId + 1;
-                    }
-                    openTab(tabIdToOpen);
+                    win.webContents.send("fromMain", ["nextTab"]);
+                    // let next = FindNext(tabs, currentTabId);
+                    // openTab(next != null ? next : FindNext(tabs, -1));
                 },
             },
         ],
