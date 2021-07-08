@@ -21,6 +21,7 @@ button {
     background-color: transparent;
     /* background-color: #3c3c3c; */
     color: white;
+    border: 0;
 }
 
 p {
@@ -36,6 +37,11 @@ p {
 .tab {
     margin-right: 1px;
     margin-left: 1px;
+    border-radius: 5px 5px 0px 0px;
+}
+
+.tab .dragging {
+    opacity: .5;
 }
 
 .selected-tab {
