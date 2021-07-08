@@ -18,6 +18,9 @@ module.exports.FindNext = (arr, currentIndex) => {
             return i;
         }
     }
+};
+
+module.exports.FindPrev = (arr, currentIndex) => {
     for (let i = currentIndex - 1; i >= 0; i++) {
         if (arr[i] != null) {
             return i;

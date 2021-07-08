@@ -1,7 +1,7 @@
 const electron = require("electron");
 const path = require("path");
 const Tab = require("./modules/tab");
-const { FindEmpty, FindNext } = require("./modules/find");
+const { FindEmpty, FindNext, FindPrev } = require("./modules/find");
 const { app, BrowserWindow, BrowserView, Menu, ipcMain, nativeTheme, session } =
     electron;
 
@@ -53,7 +53,8 @@ function closeTab(id) {
         // open existing tab
         if (currentTabId == id) {
             // the tab that was closed was open
-            openTab(FindNext(tabs, currentTabId));
+            let next = FindNext(tabs, currentTabId);
+            openTab(next == null ? FindPrev(tabs, currentTabId) : next);
         } //else if (currentTabId > id) {
 
         // }
