@@ -1,7 +1,7 @@
 const electron = require("electron");
 const path = require("path");
 const Tab = require("./modules/tab");
-const findEmpty = require("./modules/findEmpty");
+const { FindEmpty, FindNext } = require("./modules/find");
 const { app, BrowserWindow, BrowserView, Menu, ipcMain, nativeTheme, session } =
     electron;
 
@@ -26,7 +26,8 @@ function createTab(url) {
     if (win != null) {
         // determine if it should load the startpage url
         let targetURL = url == null ? startpageURL : url;
-        let tabId = findEmpty(tabs);
+        let tabId = FindEmpty(tabs);
+        console.log(tabId);
         // let tabId = tabs.length;
 
         // create a new tab
@@ -46,18 +47,29 @@ function openTab(id) {
 function closeTab(id) {
     console.log(`closing tab: ${id}`);
     if (tabs.length > 1) {
-        let removedTabArr = tabs.splice(id, 1);
+        tabs[id].Close();
+        tabs[id] = null;
 
-        removedTabArr[0].Close();
+        // open existing tab
         if (currentTabId == id) {
-            openTab(tabs.length - 1);
-        }
-        if (currentTabId > id) {
-            for (let i = 1; i < tabs.length - id; i++) {
-                tabs[i + id].Id -= 1;
-            }
-            currentTabId -= 1;
-        }
+            // the tab that was closed was open
+            openTab(FindNext(tabs, currentTabId));
+        } //else if (currentTabId > id) {
+
+        // }
+
+        // let removedTabArr = tabs.splice(id, 1);
+
+        // removedTabArr[0].Close();
+        // if (currentTabId == id) {
+        //     openTab(tabs.length - 1);
+        // }
+        // if (currentTabId > id) {
+        //     for (let i = 1; i < tabs.length - id; i++) {
+        //         tabs[i + id].Id -= 1;
+        //     }
+        //     currentTabId -= 1;
+        // }
 
     } else {
         app.quit();

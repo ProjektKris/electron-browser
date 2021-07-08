@@ -11,22 +11,22 @@ let highlightedTabElement;
 
 goback.onclick = () => {
     window.api.send('toMain', ['goback']);
-}
+};
 goforward.onclick = () => {
     window.api.send('toMain', ['goforward']);
-}
+};
 reload.onclick = () => {
     window.api.send('toMain', ['reload']);
-}
+};
 urlform.onsubmit = (e) => {
     e.preventDefault();
-    let val = urlbox.value
+    let val = urlbox.value;
     window.api.send('toMain', ['url', val]);
-}
+};
 
 newTab.onclick = () => {
     window.api.send('toMain', ['newtab']);
-}
+};
 
 window.api.receive("fromMain", (data) => {
     console.log(`Received ${data} from main process`);
@@ -46,39 +46,39 @@ window.api.receive("fromMain", (data) => {
             //     </div>
             let newTabDiv = document.createElement('div');
             let newTabBtn = document.createElement('button');
-            let newCloseBtn = document.createElement("button")
+            let newCloseBtn = document.createElement("button");
 
             tabsContainer.appendChild(newTabDiv);
             newTabDiv.appendChild(newTabBtn);
             newTabDiv.appendChild(newCloseBtn);
 
             newTabDiv.className = 'tab';
-            newTabDiv.id = `tab${data[1].toString()}`
+            newTabDiv.id = `tab${data[1].toString()}`;
             newTabBtn.innerHTML = `tab ${data[1].toString()}`;
-            newTabBtn.id = `tabBtn${data[1].toString()}`
+            newTabBtn.id = `tabBtn${data[1].toString()}`;
             newCloseBtn.innerHTML = 'x';
 
             newTabBtn.onclick = () => {
                 let elementId = newTabDiv.id;
                 let res = elementId.split('tab');
                 let tabId = res[1];
-                window.api.send('toMain', ['opentab', tabId])
-            }
+                window.api.send('toMain', ['opentab', tabId]);
+            };
             newTabDiv.onauxclick = (e) => {
                 let elementId = newTabDiv.id;
                 let res = elementId.split('tab');
                 let tabId = res[1];
                 if (e.button == 1) { // middle mouse button close tab
-                    window.api.send('toMain', ['closetab', tabId])
+                    window.api.send('toMain', ['closetab', tabId]);
                 }
-            }
+            };
             newCloseBtn.onclick = () => {
                 let elementId = newTabDiv.id;
                 let res = elementId.split('tab');
                 let tabId = res[1];
-                window.api.send('toMain', ['closetab', tabId])
+                window.api.send('toMain', ['closetab', tabId]);
 
-            }
+            };
             break;
         case 'highlight-tab':
             if (highlightedTabElement != null) {
@@ -91,17 +91,18 @@ window.api.receive("fromMain", (data) => {
         case 'remove-tab':
             let removedTabId = data[1];
             for (tabElement of document.querySelectorAll(".tab")) {
-                console.log(`real: ${tabElement}`)
+                console.log(`real: ${tabElement}`);
                 let elementId = tabElement.id;
                 let res = elementId.split('tab');
                 let tabId = res[1];
-                let tabBtn = document.getElementById(`tabBtn${tabId}`)
+                let tabBtn = document.getElementById(`tabBtn${tabId}`);
                 if (tabId == removedTabId) {
                     tabElement.remove();
                 } else {
                     if (tabId > removedTabId) {
-                        tabElement.id = `tab${tabId - 1}`;
-                        tabBtn.id = `tabBtn${tabId - 1}`;
+                        // tabElement.id = `tab${tabId - 1}`;
+                        // tabBtn.id = `tabBtn${tabId - 1}`;
+
                         // tabBtn.innerHTML = `tab ${tabId-1}`
                     }
                 }
