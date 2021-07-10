@@ -1,23 +1,18 @@
-const electron = require('electron');
-const path = require('path');
-const {
-    app,
-    BrowserWindow,
-    BrowserView,
-    Menu,
-    ipcMain,
-    nativeTheme,
-    session
-} = electron;
+const electron = require("electron");
+const path = require("path");
+const Tab = require("./modules/tab");
+const { FindEmpty, FindNext, FindPrev } = require("./modules/find");
+const { app, BrowserWindow, BrowserView, Menu, ipcMain, nativeTheme, session } =
+    electron;
 
 const titlebarHeight = 15;
 const bottomExtrasHeight = 56;
 const scrollbarWidth = 15;
-const startpageURL = 'https://www.google.com';
+const startpageURL = "https://www.google.com";
 
 const filter = {
-    urls: ["http://*/*", "https://*/*"]
-}
+    urls: ["http://*/*", "https://*/*"],
+};
 
 let win;
 let view;
@@ -29,119 +24,68 @@ let currentTabId;
 
 function createTab(url) {
     if (win != null) {
-        console.log('creating tab')
         // determine if it should load the startpage url
         let targetURL = url == null ? startpageURL : url;
-        let tabId = tabs.length;
+        let tabId = FindEmpty(tabs);
+        console.log(tabId);
+        // let tabId = tabs.length;
 
         // create a new tab
-        let newTab = new BrowserView()
-
-        // load url
-        newTab.webContents.loadURL(targetURL);
-
-        // index
-        tabs.push(newTab);
-
-        // render tab button
-        win.webContents.send('fromMain', ['create-tab', tabs.length - 1]);
-
-        // open link in new tab (instead of new window)
-        newTab.webContents.setWindowOpenHandler(({ url }) => {
-            createTab(url);
-            return { action: 'deny' }
-        })
-
-        // open the new tab
-        openTab(tabs.length - 1);
-
-        // set bounds
-        newTab.webContents.once('dom-ready', () => {
-            win.webContents.send('fromMain', ['getHeight']);
+        tabs[tabId] = new Tab(targetURL, tabId, win, createTab, () => {
+            // onClose
+            console.log("onClose");
         });
-
-        // update url box
-        newTab.webContents.on('did-finish-load', () => {
-            win.webContents.send("fromMain", ['urlbar:update', newTab.webContents.getURL()]);
-        })
-
-        // update tab title
-        newTab.webContents.on('page-title-updated', (_, title) => {
-            if (win.getBrowserView() == newTab) {
-                // update tab title
-                win.webContents.send('fromMain', ['update-tab-title', tabId, title]);
-
-                // update window title
-                win.title = tabs[currentTabId].webContents.getTitle();
-            }
-        })
+        currentTabId = tabId;
     }
 }
 
 function openTab(id) {
-    if (currentTabId != null) {
-        // hide prev tab
-        win.removeBrowserView(tabs[currentTabId]);
-
-        // update currentTabId
-        currentTabId = id;
-
-        // update browserview
-        win.setBrowserView(tabs[currentTabId]);
-
-        // highlight the tab button
-        win.webContents.send('fromMain', ['highlight-tab', id])
-
-        // readjust webcontent bounds
-        win.webContents.send('fromMain', ['getHeight']);
-    } else {
-        currentTabId = 0;
-        win.setBrowserView(tabs[currentTabId]);
-
-        // highlight the tab button
-        win.webContents.send('fromMain', ['highlight-tab', currentTabId])
-    }
-
-    // update urlbox everytime we switch tabs
-    console.log(`current tab id: ${currentTabId}\ntabs: ${tabs}\ncurrent tab: ${tabs[currentTabId]}`)
-    win.webContents.send("fromMain", ['urlbar:update', tabs[currentTabId].webContents.getURL()]);
-
-    // update tab title
-    win.webContents.send('fromMain', ['update-tab-title', currentTabId, tabs[currentTabId].webContents.getTitle()]);
-
-    // update window title
-    win.title = tabs[currentTabId].webContents.getTitle();
-
+    tabs[id].Open();
+    currentTabId = id;
 }
 
 function closeTab(id) {
-    console.log(`closing tab: ${id}`)
+    console.log(`closing tab: ${id}`);
     if (tabs.length > 1) {
-        let removedTabArr = tabs.splice(id, 1);
+        tabs[id].Close();
+        tabs[id] = null;
 
-        win.webContents.send('fromMain', ['remove-tab', id])
+        // open existing tab
         if (currentTabId == id) {
-            openTab(tabs.length - 1);
-        }
-        if (currentTabId > id) {
-            currentTabId -= 1;
-        }
-        removedTabArr[0].webContents.removeAllListeners();
-        removedTabArr[0].webContents.delete();
-        removedTabArr[0].webContents.forcefullyCrashRenderer();
-        removedTabArr = null;
+            // the tab that was closed was open
+            let next = FindNext(tabs, currentTabId);
+            openTab(next == null ? FindPrev(tabs, currentTabId) : next);
+        } //else if (currentTabId > id) {
+
+        // }
+
+        // let removedTabArr = tabs.splice(id, 1);
+
+        // removedTabArr[0].Close();
+        // if (currentTabId == id) {
+        //     openTab(tabs.length - 1);
+        // }
+        // if (currentTabId > id) {
+        //     for (let i = 1; i < tabs.length - id; i++) {
+        //         tabs[i + id].Id -= 1;
+        //     }
+        //     currentTabId -= 1;
+        // }
     } else {
         app.quit();
     }
 }
 
-app.on('ready', () => {
-    console.log('app ready');
+app.on("ready", () => {
+    console.log("app ready");
 
-    session.defaultSession.webRequest.onBeforeSendHeaders(filter, (details, callback) => {
-        details.requestHeaders['DNT'] = "1";
-        callback({ cancel: false, requestHeaders: details.requestHeaders })
-    })
+    session.defaultSession.webRequest.onBeforeSendHeaders(
+        filter,
+        (details, callback) => {
+            details.requestHeaders["DNT"] = "1";
+            callback({ cancel: false, requestHeaders: details.requestHeaders });
+        }
+    );
 
     // In the main process.
     win = new BrowserWindow({
@@ -150,18 +94,18 @@ app.on('ready', () => {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: path.join(__dirname, 'preload.js')
+            preload: path.join(__dirname, "preload.js"),
         },
-        backgroundColor: "#2a2a2a"
-    })
-    win.loadFile('index.html');
+        backgroundColor: "#2a2a2a",
+    });
+    win.loadFile("index.html");
 
     // set dark theme
-    nativeTheme.themeSource = 'dark';
+    nativeTheme.themeSource = "dark";
 
     // update BrowserView size
-    win.on('resize', () => {
-        win.webContents.send('fromMain', ['getHeight']);
+    win.on("resize", () => {
+        win.webContents.send("fromMain", ["getHeight"]);
         // winSize = win.getSize();
         // let width = winSize[0];
         // let height = winSize[1];
@@ -172,175 +116,176 @@ app.on('ready', () => {
         //     width: width - scrollbarWidth,
         //     height: height - topHeight - 55
         // })
-    })
+    });
 
-    win.on('close', () => {
-        console.log('clearing session data');
+    win.on("close", () => {
+        console.log("clearing session data");
         win.webContents.session.clearStorageData([]);
-        console.log('done!');
-    })
+        console.log("done!");
+    });
 
     // build menu from template
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
     Menu.setApplicationMenu(mainMenu);
-})
+});
 
-app.on('window-all-closed', () => {
+app.on("window-all-closed", () => {
     app.quit();
-})
+});
 
-ipcMain.on('toMain', (_, data) => {
+ipcMain.on("toMain", (_, data) => {
     switch (data[0]) {
         // case "navigate":
         //     navigatorWindow.close();
         //     newWindow(data[1]);
         //     break;
         case "goback":
-            tabs[currentTabId].webContents.goBack();
+            tabs[currentTabId].GoBack();
             break;
-        case 'goforward':
-            tabs[currentTabId].webContents.goForward();
+        case "goforward":
+            tabs[currentTabId].GoForward();
             break;
-        case 'reload':
-            tabs[currentTabId].webContents.reload();
+        case "reload":
+            tabs[currentTabId].Reload();
             break;
-        case 'url':
-            console.log(`navigate to url: ${data[1]}`)
-            tabs[currentTabId].webContents.loadURL(data[1]);
+        case "url":
+            console.log(`navigate to url: ${data[1]}`);
+            tabs[currentTabId].LoadURL(data[1]);
             break;
-        case 'height':
+        case "height":
             winSize = win.getSize();
             let width = winSize[0];
             let height = winSize[1];
 
-            tabs[currentTabId].setBounds({
+            tabs[currentTabId].BrowserView.setBounds({
                 x: 0,
                 y: titlebarHeight + data[1],
                 width: width - scrollbarWidth,
-                height: height - titlebarHeight - bottomExtrasHeight - data[1]
-            })
+                height: height - titlebarHeight - bottomExtrasHeight - data[1],
+            });
             break;
-        case 'newtab':
+        case "newtab":
             createTab();
             break;
-        case 'closetab':
+        case "closetab":
             closeTab(parseInt(data[1], 10));
             break;
-        case 'opentab':
+        case "opentab":
             openTab(parseInt(data[1], 10));
             break;
-        case 'renderjs-ready':
-            console.log('renderjs ready');
+        case "prevTab":
+            openTab(parseInt(data[1], 10));
+            break;
+        case "renderjs-ready":
+            console.log("renderjs ready");
             createTab();
             break;
         default:
             console.log(`unknown data from window: "${data}"`);
-    };
-})
+    }
+});
 
 const mainMenuTemplate = [
     {
-        label: 'File',
+        label: "File",
         submenu: [
             {
-                label: 'Quit',
-                accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
+                label: "Quit",
+                accelerator:
+                    process.platform == "darwin" ? "Command+Q" : "Ctrl+Q",
                 click() {
                     app.quit();
-                }
-            }
-        ]
+                },
+            },
+        ],
     },
     {
-        label: 'Edit',
+        label: "Edit",
         submenu: [
-            { role: 'undo' },
-            { role: 'redo' },
-            { type: 'separator' },
-            { role: 'cut' },
-            { role: 'copy' },
-            { role: 'paste' }
-        ]
+            { role: "undo" },
+            { role: "redo" },
+            { type: "separator" },
+            { role: "cut" },
+            { role: "copy" },
+            { role: "paste" },
+        ],
     },
     // { role: 'viewMenu' }
     {
-        label: 'View',
+        label: "View",
         submenu: [
-            { role: 'reload' },
-            { role: 'forceReload' },
-            { role: 'toggleDevTools' },
-            { type: 'separator' },
-            { role: 'resetZoom' },
-            { role: 'zoomIn' },
-            { role: 'zoomOut' },
-            { type: 'separator' },
-            { role: 'togglefullscreen' }
-        ]
+            { role: "reload" },
+            { role: "forceReload" },
+            { role: "toggleDevTools" },
+            { type: "separator" },
+            { role: "resetZoom" },
+            { role: "zoomIn" },
+            { role: "zoomOut" },
+            { type: "separator" },
+            { role: "togglefullscreen" },
+        ],
     },
     {
-        label: 'Tabs',
+        label: "Tabs",
         submenu: [
             {
-                label: 'New',
-                accelerator: process.platform == 'darwin' ? 'Command+T' : 'Ctrl+T',
+                label: "New",
+                accelerator:
+                    process.platform == "darwin" ? "Command+T" : "Ctrl+T",
                 click() {
                     createTab();
-                }
+                },
             },
             {
-                label: 'Close Tab',
-                accelerator: process.platform == 'darwin' ? 'Command+W' : 'Ctrl+W',
+                label: "Close Tab",
+                accelerator:
+                    process.platform == "darwin" ? "Command+W" : "Ctrl+W",
                 click() {
                     closeTab(currentTabId);
-                }
+                },
             },
             {
-                label: 'Previous Tab',
-                accelerator: 'CommandOrControl+Shift+Tab',
+                label: "Previous Tab",
+                accelerator: "CommandOrControl+Shift+Tab",
                 click() {
-                    let tabIdToOpen = 0
-                    if (currentTabId > 0) {
-                        tabIdToOpen = currentTabId - 1;
-                    } else {
-                        tabIdToOpen = tabs.length - 1;
-                    }
-                    openTab(tabIdToOpen);
-                }
+                    win.webContents.send("fromMain", ["prevTab"]);
+                    // let prev = FindPrev(tabs, currentTabId);
+                    // openTab(prev != null ? prev : FindPrev(tabs, tabs.length + 1));
+                },
             },
             {
-                label: 'Next Tab',
-                accelerator: 'CommandOrControl+Tab',
+                label: "Next Tab",
+                accelerator: "CommandOrControl+Tab",
                 click() {
-                    let tabIdToOpen = 0
-                    if (currentTabId < tabs.length - 1) {
-                        tabIdToOpen = currentTabId + 1;
-                    }
-                    openTab(tabIdToOpen);
-                }
-            }
-        ]
+                    win.webContents.send("fromMain", ["nextTab"]);
+                    // let next = FindNext(tabs, currentTabId);
+                    // openTab(next != null ? next : FindNext(tabs, -1));
+                },
+            },
+        ],
     },
     {
-        label: 'Developer Tools',
+        label: "Developer Tools",
         submenu: [
             {
-                label: 'Toggle DevTools',
-                accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+                label: "Toggle DevTools",
+                accelerator:
+                    process.platform == "darwin" ? "Command+I" : "Ctrl+I",
                 click(item, focusedWindow) {
-                    tabs[currentTabId].webContents.toggleDevTools();
+                    tabs[currentTabId].BrowserView.webContents.toggleDevTools();
                     // focusedWindow.toggleDevTools();
-                }
+                },
             },
             {
-                label: 'Browser UI DevTools',
+                label: "Browser UI DevTools",
                 // accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
                 click(item, focusedWindow) {
                     // tabs[currentTabId].webContents.toggleDevTools();
                     focusedWindow.toggleDevTools();
-                }
-            }
-        ]
-    }
+                },
+            },
+        ],
+    },
 ];
 
 // yup menubar for mac doms
