@@ -1,3 +1,5 @@
+[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
+
 # Electron Browser
 
 A simple browser built on top of electron by utilizing electron BrowserView.
