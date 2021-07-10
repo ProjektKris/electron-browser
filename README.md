@@ -46,4 +46,4 @@ npm run package-win
 
 ## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
+[MIT](https://github.com/ProjektKris/electron-browser/blob/master/LICENSE)
