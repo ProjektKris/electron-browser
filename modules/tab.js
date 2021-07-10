@@ -17,9 +17,6 @@ function Tab(url, id, win, onNewTab, onClose) {
         // highlight the tab button
         this.Win.webContents.send("fromMain", ["highlight-tab", this.Id]);
 
-        // readjust webcontent bounds
-        this.Win.webContents.send("fromMain", ["getHeight"]);
-
         // update urlbox
         console.log(`current tab id: ${this.Id}`);
         this.Win.webContents.send("fromMain", [
@@ -33,6 +30,9 @@ function Tab(url, id, win, onNewTab, onClose) {
             this.Id,
             this.BrowserView.webContents.getTitle(),
         ]);
+
+        // readjust webcontent bounds
+        this.Win.webContents.send("fromMain", ["getHeight"]);
 
         // update window title
         this.Win.title = this.BrowserView.webContents.getTitle();
@@ -99,6 +99,9 @@ function Tab(url, id, win, onNewTab, onClose) {
 
             // update window title
             this.Win.title = this.BrowserView.webContents.getTitle();
+
+            // readjust webcontent bounds
+            this.Win.webContents.send("fromMain", ["getHeight"]);
         }
     });
 }
