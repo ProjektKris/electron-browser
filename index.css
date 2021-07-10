@@ -4,11 +4,11 @@
 
 #urlbar {
     flex: 100%;
-    margin-top: 2px
+    margin-top: 2px;
 }
 
 #tabs {
-    margin-right: 2px
+    margin-right: 2px;
 }
 
 form {
@@ -37,12 +37,13 @@ p {
 .tab {
     margin-right: 1px;
     margin-left: 1px;
-    border-radius: 5px 5px 0px 0px;
+    /* border-radius: 5px 5px 0px 0px; */
+    border-radius: 3px 3px 3px 3px;
 }
 
-.tab .dragging {
-    opacity: .5;
-}
+/* .tab .dragging {
+    opacity: 1;
+} */
 
 .selected-tab {
     margin-right: 1px;
