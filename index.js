@@ -71,7 +71,6 @@ function closeTab(id) {
         //     }
         //     currentTabId -= 1;
         // }
-
     } else {
         app.quit();
     }
@@ -273,7 +272,7 @@ const mainMenuTemplate = [
                 accelerator:
                     process.platform == "darwin" ? "Command+I" : "Ctrl+I",
                 click(item, focusedWindow) {
-                    tabs[currentTabId].webContents.toggleDevTools();
+                    tabs[currentTabId].BrowserView.webContents.toggleDevTools();
                     // focusedWindow.toggleDevTools();
                 },
             },
