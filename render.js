@@ -192,9 +192,13 @@ function listenForTabDrag(element) {
         let dist = right - left;
         let center = left + dist / 2;
         if (e.clientX < center) {
-            tabsContainer.insertBefore(draggingElement, element);
+            if (element.previousSibling != draggingElement) {
+                tabsContainer.insertBefore(draggingElement, element);
+            }
         } else {
-            insertAfter(draggingElement, element);
+            if (element.nextSibling != draggingElement) {
+                insertAfter(draggingElement, element);
+            }
         }
         // console.log(e, element);
         // if (element != draggingElement) {
