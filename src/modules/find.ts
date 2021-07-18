@@ -1,5 +1,4 @@
-
-module.exports.FindEmpty = (arr) => {
+export const FindEmpty = (arr: any[]): number => {
     /*
     Returns an index that is empty in `arr` array.
     If there are no empty indexes, it will return arr.length
@@ -12,7 +11,7 @@ module.exports.FindEmpty = (arr) => {
     return arr.length;
 };
 
-module.exports.FindNext = (arr, currentIndex) => {
+export const FindNext = (arr: any[], currentIndex: number): number => {
     for (let i = currentIndex + 1; i < arr.length; i++) {
         if (arr[i] != null) {
             return i;
@@ -20,7 +19,7 @@ module.exports.FindNext = (arr, currentIndex) => {
     }
 };
 
-module.exports.FindPrev = (arr, currentIndex) => {
+export const FindPrev = (arr: any[], currentIndex: number): number => {
     for (let i = currentIndex - 1; i >= 0; i--) {
         if (arr[i] != null) {
             return i;

@@ -3,14 +3,20 @@ const goback = document.getElementById("goback");
 const goforward = document.getElementById("goforward");
 const reload = document.getElementById("reload");
 const urlform = document.getElementById("urlform");
-const urlbox = document.getElementById("urlbox");
+const urlbox: HTMLInputElement = <HTMLInputElement>(
+    document.getElementById("urlbox")
+);
 const tabsContainer = document.getElementById("tabs");
 const newTab = document.getElementById("btn-newtab");
 
-let highlightedTabElement;
+let highlightedTabElement: HTMLElement;
 
 // make the tabs container a drag container
 // makeDragContainer(tabsContainer);
+
+interface Window {
+    api: any;
+}
 
 goback.onclick = () => {
     window.api.send("toMain", ["goback"]);
@@ -31,7 +37,7 @@ newTab.onclick = () => {
     window.api.send("toMain", ["newtab"]);
 };
 
-window.api.receive("fromMain", (data) => {
+window.api.receive("fromMain", (data: any[]) => {
     console.log(`Received ${data} from main process`);
     switch (data[0]) {
         case "urlbar:update":
@@ -97,6 +103,7 @@ window.api.receive("fromMain", (data) => {
             break;
         case "remove-tab":
             let removedTabId = data[1];
+            let tabElement: Element;
             for (tabElement of document.querySelectorAll(".tab")) {
                 console.log(`real: ${tabElement}`);
                 let elementId = tabElement.id;
@@ -139,7 +146,7 @@ window.api.receive("fromMain", (data) => {
             console.log(prevTabIndex);
             let prevTabId = tabDivs[prevTabIndex].id;
 
-            window.api.send("toMain", ["prevTab", prevTabId.slice(3)]);
+            window.api.send("toMain", ["opentab", prevTabId.slice(3)]);
             break;
         case "nextTab":
             const tabDivs1 = document.querySelectorAll(".tab");
@@ -147,7 +154,7 @@ window.api.receive("fromMain", (data) => {
 
             // find currentTabIndex1
             for (let i = 0; i < tabDivs1.length; i++) {
-                tabElement = tabDivs1[i];
+                let tabElement = tabDivs1[i];
                 if (tabElement.classList.contains("selected-tab")) {
                     currentTabIndex1 = i;
                     break;
@@ -161,12 +168,12 @@ window.api.receive("fromMain", (data) => {
             console.log(nextTabIndex);
             let nextTabId = tabDivs1[nextTabIndex].id;
 
-            window.api.send("toMain", ["prevTab", nextTabId.slice(3)]);
+            window.api.send("toMain", ["opentab", nextTabId.slice(3)]);
             break;
     }
 });
 
-function makeDraggable(element) {
+function makeDraggable(element: HTMLElement) {
     element.draggable = true;
     element.addEventListener("dragstart", () => {
         element.classList.add("dragging");
@@ -176,11 +183,11 @@ function makeDraggable(element) {
     });
 }
 
-function insertAfter(newNode, referenceNode) {
+function insertAfter(newNode: Node, referenceNode: Node) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
 
-function listenForTabDrag(element) {
+function listenForTabDrag(element: HTMLElement) {
     element.addEventListener("dragover", (e) => {
         const draggingElements = [
             ...tabsContainer.querySelectorAll(".dragging"),
@@ -204,41 +211,6 @@ function listenForTabDrag(element) {
         // if (element != draggingElement) {
         // }
     });
-}
-
-// function makeDragContainer(container) {
-//     container.addEventListener('dragover', e => {
-//         e.preventDefault();
-//         var x = e.clientX, y = e.clientY,
-//             elementMouseIsOver = document.elementFromPoint(x, y);
-
-//         console.log(elementMouseIsOver);
-//         // const afterElement = getDragAfterElement(container, e.clientX);
-//         // const dragable = document.querySelector(".dragging");
-//         // if (afterElement == null) {
-//         //     container.appendChild(dragable);
-//         // } else {
-//         //     container.insertBefore(dragable, afterElement);
-//         // }
-//     });
-// }
-
-function getDragAfterElement(container, x) {
-    const draggableElements = [...container.querySelectorAll(".tab")]; //('.tab:not(.dragging)')];
-
-    return draggableElements.reduce(
-        (closest, child) => {
-            console.log(closest);
-            const box = child.getBoundingClientRect();
-            const offset = x - box.left - box.right / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        },
-        { offset: Number.NEGATIVE_INFINITY }
-    ).element;
 }
 
 window.api.send("toMain", ["renderjs-ready"]);

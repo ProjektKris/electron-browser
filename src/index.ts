@@ -1,9 +1,17 @@
 const electron = require("electron");
 const path = require("path");
-const Tab = require("./modules/tab");
-const { FindEmpty, FindNext, FindPrev } = require("./modules/find");
-const { app, BrowserWindow, BrowserView, Menu, ipcMain, nativeTheme, session } =
-    electron;
+import { Tab } from "./modules/tab";
+import { FindEmpty, FindNext, FindPrev } from "./modules/find";
+import {
+    app,
+    BrowserWindow,
+    BrowserView,
+    Menu,
+    ipcMain,
+    nativeTheme,
+    session,
+    MenuItem,
+} from "electron";
 
 const titlebarHeight = 15;
 const bottomExtrasHeight = 56;
@@ -14,19 +22,18 @@ const filter = {
     urls: ["http://*/*", "https://*/*"],
 };
 
-let win;
-let view;
+let win: BrowserWindow;
 
-let winSize;
+let winSize: number[];
 
-let tabs = [];
-let currentTabId;
+let tabs: any[] = [];
+let currentTabId: number;
 
-function createTab(url) {
+function createTab(url: string = startpageURL) {
     if (win != null) {
         // determine if it should load the startpage url
-        let targetURL = url == null ? startpageURL : url;
-        let tabId = FindEmpty(tabs);
+        let targetURL: string = url == null ? startpageURL : url;
+        let tabId: number = FindEmpty(tabs);
         console.log(tabId);
         // let tabId = tabs.length;
 
@@ -39,12 +46,12 @@ function createTab(url) {
     }
 }
 
-function openTab(id) {
+function openTab(id: number) {
     tabs[id].Open();
     currentTabId = id;
 }
 
-function closeTab(id) {
+function closeTab(id: number) {
     console.log(`closing tab: ${id}`);
     if (tabs.length > 1) {
         tabs[id].Close();
@@ -81,7 +88,7 @@ app.on("ready", () => {
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
         filter,
-        (details, callback) => {
+        (details: any, callback: any) => {
             details.requestHeaders["DNT"] = "1";
             callback({ cancel: false, requestHeaders: details.requestHeaders });
         }
@@ -98,7 +105,7 @@ app.on("ready", () => {
         },
         backgroundColor: "#2a2a2a",
     });
-    win.loadFile("index.html");
+    win.loadFile("../assets/index.html");
 
     // set dark theme
     nativeTheme.themeSource = "dark";
@@ -120,7 +127,7 @@ app.on("ready", () => {
 
     win.on("close", () => {
         console.log("clearing session data");
-        win.webContents.session.clearStorageData([]);
+        win.webContents.session.clearStorageData();
         console.log("done!");
     });
 
@@ -133,7 +140,7 @@ app.on("window-all-closed", () => {
     app.quit();
 });
 
-ipcMain.on("toMain", (_, data) => {
+ipcMain.on("toMain", (_: any, data: any[]) => {
     switch (data[0]) {
         // case "navigate":
         //     navigatorWindow.close();
@@ -154,10 +161,10 @@ ipcMain.on("toMain", (_, data) => {
             break;
         case "height":
             winSize = win.getSize();
-            let width = winSize[0];
-            let height = winSize[1];
+            let width: number = winSize[0];
+            let height: number = winSize[1];
 
-            tabs[currentTabId].BrowserView.setBounds({
+            tabs[currentTabId].browserView.setBounds({
                 x: 0,
                 y: titlebarHeight + data[1],
                 width: width - scrollbarWidth,
@@ -173,9 +180,9 @@ ipcMain.on("toMain", (_, data) => {
         case "opentab":
             openTab(parseInt(data[1], 10));
             break;
-        case "prevTab":
-            openTab(parseInt(data[1], 10));
-            break;
+        // case "prevTab":
+        //     openTab(parseInt(data[1], 10));
+        //     break;
         case "renderjs-ready":
             console.log("renderjs ready");
             createTab();
@@ -185,7 +192,7 @@ ipcMain.on("toMain", (_, data) => {
     }
 });
 
-const mainMenuTemplate = [
+const mainMenuTemplate: Electron.MenuItemConstructorOptions[] = [
     {
         label: "File",
         submenu: [
@@ -271,17 +278,17 @@ const mainMenuTemplate = [
                 label: "Toggle DevTools",
                 accelerator:
                     process.platform == "darwin" ? "Command+I" : "Ctrl+I",
-                click(item, focusedWindow) {
-                    tabs[currentTabId].BrowserView.webContents.toggleDevTools();
+                click(_item: MenuItem, _focusedWindow: BrowserWindow) {
+                    tabs[currentTabId].browserView.webContents.toggleDevTools();
                     // focusedWindow.toggleDevTools();
                 },
             },
             {
                 label: "Browser UI DevTools",
                 // accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
-                click(item, focusedWindow) {
+                click(_item: MenuItem, focusedWindow: BrowserWindow) {
                     // tabs[currentTabId].webContents.toggleDevTools();
-                    focusedWindow.toggleDevTools();
+                    focusedWindow.webContents.toggleDevTools();
                 },
             },
         ],
@@ -289,9 +296,9 @@ const mainMenuTemplate = [
 ];
 
 // yup menubar for mac doms
-if (process.platform == "darwin") {
-    mainMenuTemplate.unshift({});
-}
+// if (process.platform == "darwin") {
+//     mainMenuTemplate.unshift({});
+// }
 
 // add dev tools if not production
 // if (process.env.NODE_ENV != "production") {
