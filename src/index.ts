@@ -1,7 +1,7 @@
 const electron = require("electron");
 const path = require("path");
 import { Tab } from "./modules/tab";
-import { FindEmpty, FindNext, FindPrev } from "./modules/find";
+import { FindEmpty, FindNext, FindPrev, FindLength } from "./modules/find";
 import {
     app,
     BrowserWindow,
@@ -53,7 +53,7 @@ function openTab(id: number) {
 
 function closeTab(id: number) {
     console.log(`closing tab: ${id}`);
-    if (tabs.length > 1) {
+    if (FindLength(tabs) > 1) {
         tabs[id].Close();
         tabs[id] = null;
 
@@ -105,7 +105,7 @@ app.on("ready", () => {
         },
         backgroundColor: "#2a2a2a",
     });
-    win.loadFile("../assets/index.html");
+    win.loadFile("gui/index.html");
 
     // set dark theme
     nativeTheme.themeSource = "dark";

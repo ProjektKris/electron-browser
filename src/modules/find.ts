@@ -26,3 +26,14 @@ export const FindPrev = (arr: any[], currentIndex: number): number => {
         }
     }
 };
+
+export const FindLength = (arr: any[]): number => {
+    let length: number = 0;
+    for (let i = 0; i < arr.length; i++) {
+        const element = arr[i];
+        if (element != null) {
+            length += 1;
+        }
+    }
+    return length;
+};
