@@ -105,7 +105,7 @@ app.on("ready", () => {
         },
         backgroundColor: "#2a2a2a",
     });
-    win.loadFile("gui/index.html");
+    win.loadFile("dist/gui/index.html");
 
     // set dark theme
     nativeTheme.themeSource = "dark";
