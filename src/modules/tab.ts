@@ -69,6 +69,15 @@ export class Tab {
                 }
             }
         );
+
+        this.browserView.webContents.session.setPermissionRequestHandler(
+            (webContents, permission, callback) => {
+                const url = webContents.getURL();
+
+                // reject all permission request for now until i make a permission request ui
+                return callback(false);
+            }
+        );
     }
 
     Open() {

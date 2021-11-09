@@ -114,24 +114,24 @@ app.on("ready", () => {
     //     });
     // });
 
-    session
-        .fromPartition("some-partition")
-        .setPermissionRequestHandler((webContents, permission, callback) => {
-            const url = webContents.getURL();
+    // session
+    //     .fromPartition("default")
+    //     .setPermissionRequestHandler((webContents, permission, callback) => {
+    //         const url = webContents.getURL();
 
-            // reject all permission request for now until i make a permission request ui
-            return callback(false);
-            // if (permission === "notifications") {
-            //     // Approves the permissions request
-            //     callback(true);
-            // }
+    //         // reject all permission request for now until i make a permission request ui
+    //         return callback(false);
+    //         // if (permission === "notifications") {
+    //         //     // Approves the permissions request
+    //         //     callback(true);
+    //         // }
 
-            // // Verify URL
-            // if (!url.startsWith("https://example.com/")) {
-            //     // Denies the permissions request
-            //     return callback(false);
-            // }
-        });
+    //         // // Verify URL
+    //         // if (!url.startsWith("https://example.com/")) {
+    //         //     // Denies the permissions request
+    //         //     return callback(false);
+    //         // }
+    //     });
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
         filter,
@@ -174,6 +174,15 @@ app.on("ready", () => {
         //     height: height - topHeight - 55
         // })
     });
+
+    win.webContents.session.setPermissionRequestHandler(
+        (webContents, permission, callback) => {
+            const url = webContents.getURL();
+
+            // reject all permission request for now until i make a permission request ui
+            return callback(false);
+        }
+    );
 
     win.on("close", () => {
         console.log("clearing session data");
