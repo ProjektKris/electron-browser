@@ -307,7 +307,10 @@ const mainMenuTemplate: Electron.MenuItemConstructorOptions[] = [
             },
             {
                 label: "Browser UI DevTools",
-                // accelerator: process.platform == 'darwin' ? 'Command+I' : 'Ctrl+I',
+                accelerator:
+                    process.platform == "darwin"
+                        ? "Command+Alt+Shift+I"
+                        : "Ctrl+Alt+Shift+I",
                 click(_item: MenuItem, focusedWindow: BrowserWindow) {
                     // tabs[currentTabId].webContents.toggleDevTools();
                     focusedWindow.webContents.toggleDevTools();
