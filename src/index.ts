@@ -104,8 +104,9 @@ app.on("ready", () => {
             preload: path.join(__dirname, "preload.js"),
         },
         backgroundColor: "#2a2a2a",
+        // titleBarStyle: "hidden",
     });
-    win.loadFile("dist/gui/index.html");
+    win.loadFile("./gui/index.html");
 
     // set dark theme
     nativeTheme.themeSource = "dark";
@@ -221,8 +222,16 @@ const mainMenuTemplate: Electron.MenuItemConstructorOptions[] = [
     {
         label: "View",
         submenu: [
-            { role: "reload" },
-            { role: "forceReload" },
+            // { role: "reload" },
+            {
+                label: "Reload",
+                accelerator:
+                    process.platform == "darwin" ? "Command+R" : "Ctrl+R",
+                click() {
+                    tabs[currentTabId].Reload();
+                },
+            },
+            // { role: "forceReload" },
             { role: "toggleDevTools" },
             { type: "separator" },
             { role: "resetZoom" },
