@@ -44,6 +44,17 @@ function createTab(url: string = startpageURL) {
             // onClose
             console.log("onClose");
         });
+
+        // update url box
+        tabs[tabId].browserView.webContents.on("did-finish-load", () => {
+            if (currentTabId == tabId) {
+                tabs[tabId].win.webContents.send("fromMain", [
+                    "urlbar:update",
+                    tabs[tabId].browserView.webContents.getURL(),
+                ]);
+            }
+        });
+
         currentTabId = tabId;
     }
 }

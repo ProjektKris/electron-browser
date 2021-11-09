@@ -48,26 +48,18 @@ export class Tab {
             this.win.webContents.send("fromMain", ["getHeight"]);
         });
 
-        // update url box
-        this.browserView.webContents.on("did-finish-load", () => {
-            this.win.webContents.send("fromMain", [
-                "urlbar:update",
-                this.browserView.webContents.getURL(),
-            ]);
-        });
-
         // update tab title
         this.browserView.webContents.on(
             "page-title-updated",
             (_: any, title: string) => {
-                if (this.win.getBrowserView() == this.browserView) {
-                    // update tab title
-                    this.win.webContents.send("fromMain", [
-                        "update-tab-title",
-                        this.id,
-                        title,
-                    ]);
+                // update tab title
+                this.win.webContents.send("fromMain", [
+                    "update-tab-title",
+                    this.id,
+                    title,
+                ]);
 
+                if (this.win.getBrowserView() == this.browserView) {
                     // update window title
                     this.win.title = this.browserView.webContents.getTitle();
 
