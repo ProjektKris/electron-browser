@@ -21,6 +21,7 @@ export class Tab {
             webPreferences: {
                 nodeIntegration: false,
                 contextIsolation: true,
+                sandbox: true,
             },
         });
         this.win = win;

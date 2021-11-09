@@ -103,10 +103,35 @@ app.on("ready", () => {
     //     callback({
     //         responseHeaders: {
     //             ...details.responseHeaders,
-    //             "Content-Security-Policy": ["default-src 'self' https:;"],
+    //             "Content-Security-Policy": [
+    //                 "object-src 'none';",
+    //                 "base-uri 'self';",
+    //                 // "script-src 'self';",
+    //                 // "script-src 'nonce-{random}' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:;",
+    //                 // "script-src 'strict-dynamic' 'report-sample' 'unsafe-eval' 'unsafe-inline' https: http: file: devtools:;",
+    //             ],
     //         },
     //     });
     // });
+
+    session
+        .fromPartition("some-partition")
+        .setPermissionRequestHandler((webContents, permission, callback) => {
+            const url = webContents.getURL();
+
+            // reject all permission request for now until i make a permission request ui
+            return callback(false);
+            // if (permission === "notifications") {
+            //     // Approves the permissions request
+            //     callback(true);
+            // }
+
+            // // Verify URL
+            // if (!url.startsWith("https://example.com/")) {
+            //     // Denies the permissions request
+            //     return callback(false);
+            // }
+        });
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
         filter,
@@ -126,6 +151,7 @@ app.on("ready", () => {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
+            sandbox: true,
             preload: path.join(__dirname, "preload.js"),
         },
         backgroundColor: "#2a2a2a",
@@ -185,7 +211,7 @@ ipcMain.on("toMain", (_: any, data: any[]) => {
             tabs[currentTabId].Reload();
             break;
         case "url":
-            let expression = "://(www.)?/";
+            let expression = "://"; //(www.)?/";
             let regex = new RegExp(expression);
 
             if (!data[1].match(regex)) {
