@@ -305,6 +305,15 @@ const mainMenuTemplate: Electron.MenuItemConstructorOptions[] = [
                     // openTab(next != null ? next : FindNext(tabs, -1));
                 },
             },
+            ,
+            {
+                label: "Focus URLBar",
+                accelerator: "CommandOrControl+L",
+                click() {
+                    win.webContents.focus();
+                    win.webContents.send("fromMain", ["urlbar:focus"]);
+                },
+            },
         ],
     },
     {

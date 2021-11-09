@@ -43,6 +43,9 @@ window.api.receive("fromMain", (data: any[]) => {
         case "urlbar:update":
             urlbox.value = data[1];
             break;
+        case "urlbar:focus":
+            urlbox.focus();
+            break;
         case "getHeight":
             window.api.send("toMain", [
                 "height",
