@@ -185,6 +185,13 @@ ipcMain.on("toMain", (_: any, data: any[]) => {
             tabs[currentTabId].Reload();
             break;
         case "url":
+            let expression = "://(www.)?/";
+            let regex = new RegExp(expression);
+
+            if (!data[1].match(regex)) {
+                data[1] = "https://" + data[1];
+            }
+
             console.log(`navigate to url: ${data[1]}`);
             tabs[currentTabId].LoadURL(data[1]);
             break;
