@@ -1,32 +1,33 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <link rel="stylesheet" href="index.css" />
+    </head>
 
-<head>
-    <link rel="stylesheet" href="index.css">
-</head>
-
-<body style="background-color: #2a2a2a">
-    <div id="navigator" class="flex-container">
-        <div id="tabbar" class="flex-container">
-            <div id="tabs" class="flex-container">
-                <!-- <button class="tab">
+    <body style="background-color: #2a2a2a">
+        <div id="navigator" class="flex-container">
+            <div id="tabbar" class="flex-container">
+                <div id="tabs" class="flex-container">
+                    <!-- <button class="tab">
                         <p>tab1</p>
                         <button>x</button>
                     </button> -->
+                </div>
+                <button id="btn-newtab">+</button>
             </div>
-            <button id="btn-newtab">+</button>
+            <div id="urlbar">
+                <button id="goback">◀</button>
+                <button id="goforward">▶</button>
+                <button id="reload">↩</button>
+                <form id="urlform">
+                    <input
+                        id="urlbox"
+                        type="text"
+                        value="https://www.google.com"
+                    />
+                </form>
+            </div>
         </div>
-        <div id="urlbar">
-            <button id="goback">◀</button>
-            <button id="goforward">▶</button>
-            <button id="reload">↩</button>
-            <form id="urlform">
-                <input id="urlbox" type="text" value="https://www.google.com"
-                    style="width: 80%; background-color: #3c3c3c; color: whitesmoke; border: 0; border-radius: 4px;">
-            </form>
-        </div>
-    </div>
-</body>
-<script src="../render.js"></script>
-
+    </body>
+    <script src="../render.js"></script>
 </html>

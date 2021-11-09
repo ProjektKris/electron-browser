@@ -29,6 +29,8 @@ let winSize: number[];
 let tabs: any[] = [];
 let currentTabId: number;
 
+let titleBarEnabled = false;
+
 function createTab(url: string = startpageURL) {
     if (win != null) {
         // determine if it should load the startpage url
@@ -94,6 +96,9 @@ app.on("ready", () => {
         }
     );
 
+    // set dark theme
+    nativeTheme.themeSource = "dark";
+
     // In the main process.
     win = new BrowserWindow({
         width: 800,
@@ -104,12 +109,10 @@ app.on("ready", () => {
             preload: path.join(__dirname, "preload.js"),
         },
         backgroundColor: "#2a2a2a",
-        // titleBarStyle: "hidden",
+        titleBarStyle: "hidden",
     });
-    win.loadFile("./gui/index.html");
 
-    // set dark theme
-    nativeTheme.themeSource = "dark";
+    win.loadFile("./gui/index.html");
 
     // update BrowserView size
     win.on("resize", () => {
@@ -165,12 +168,22 @@ ipcMain.on("toMain", (_: any, data: any[]) => {
             let width: number = winSize[0];
             let height: number = winSize[1];
 
-            tabs[currentTabId].browserView.setBounds({
-                x: 0,
-                y: titlebarHeight + data[1],
-                width: width - scrollbarWidth,
-                height: height - titlebarHeight - bottomExtrasHeight - data[1],
-            });
+            if (!titleBarEnabled) {
+                tabs[currentTabId].browserView.setBounds({
+                    x: 0,
+                    y: data[1], //titlebarHeight + data[1],
+                    width: width, // - scrollbarWidth,
+                    height: height - data[1], //height - titlebarHeight - bottomExtrasHeight - data[1],
+                });
+            } else {
+                tabs[currentTabId].browserView.setBounds({
+                    x: 0,
+                    y: titlebarHeight + data[1],
+                    width: width - scrollbarWidth,
+                    height:
+                        height - titlebarHeight - bottomExtrasHeight - data[1],
+                });
+            }
             break;
         case "newtab":
             createTab();

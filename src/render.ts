@@ -44,7 +44,11 @@ window.api.receive("fromMain", (data: any[]) => {
             urlbox.value = data[1];
             break;
         case "getHeight":
-            window.api.send("toMain", ["height", body.clientHeight]);
+            window.api.send("toMain", [
+                "height",
+                body.clientHeight +
+                    parseInt(window.getComputedStyle(body).marginTop) * 2,
+            ]);
             break;
         case "create-tab":
             // <div id="tabs" class="flex-container">

@@ -1,5 +1,14 @@
+body {
+    margin: 5px;
+}
+
 #tabbar {
     flex: 100%;
+    -webkit-app-region: drag;
+}
+
+#tabs {
+    -webkit-app-region: no-drag;
 }
 
 #urlbar {
@@ -7,8 +16,18 @@
     margin-top: 2px;
 }
 
-#tabs {
+#tab {
     margin-right: 2px;
+    margin-left: 2px;
+}
+
+#urlbox {
+    width: calc(100% - 100px);
+    /* width: 80%; */
+    background-color: #3c3c3c;
+    color: whitesmoke;
+    border: 0;
+    border-radius: 4px;
 }
 
 form {
@@ -22,6 +41,7 @@ button {
     /* background-color: #3c3c3c; */
     color: white;
     border: 0;
+    -webkit-app-region: no-drag;
 }
 
 p {
@@ -48,5 +68,5 @@ p {
 .selected-tab {
     margin-right: 1px;
     margin-left: 1px;
-    background-color: #666666 !important;
+    background-color: #3c3c3c !important;
 }
