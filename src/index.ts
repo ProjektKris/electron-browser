@@ -132,7 +132,7 @@ app.on("ready", () => {
         titleBarStyle: "hidden",
     });
 
-    win.loadFile("./gui/index.html");
+    win.loadFile("./dist/gui/index.html");
 
     // update BrowserView size
     win.on("resize", () => {
