@@ -88,9 +88,18 @@ function closeTab(id: number) {
 app.on("ready", () => {
     console.log("app ready");
 
+    // session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    //     callback({
+    //         responseHeaders: {
+    //             ...details.responseHeaders,
+    //             "Content-Security-Policy": ["default-src 'self' https:;"],
+    //         },
+    //     });
+    // });
+
     session.defaultSession.webRequest.onBeforeSendHeaders(
         filter,
-        (details: any, callback: any) => {
+        (details, callback) => {
             details.requestHeaders["DNT"] = "1";
             callback({ cancel: false, requestHeaders: details.requestHeaders });
         }
@@ -141,6 +150,11 @@ app.on("ready", () => {
 });
 
 app.on("window-all-closed", () => {
+    app.quit();
+});
+
+process.on("SIGINT", function () {
+    console.log("Caught interrupt signal");
     app.quit();
 });
 
