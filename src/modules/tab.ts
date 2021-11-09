@@ -17,7 +17,12 @@ export class Tab {
 
         // class properties
         this.id = id;
-        this.browserView = new BrowserView();
+        this.browserView = new BrowserView({
+            webPreferences: {
+                nodeIntegration: false,
+                contextIsolation: true,
+            },
+        });
         this.win = win;
         this.onClose = onClose;
 
